@@ -24,7 +24,7 @@ router.post("/api/auth/signin", authController.signin);
 router.get("/api/auth/signout", authController.signout);
 
 /**
- * USER ROUTES: /api/users
+ * USER ROUTES: /api/users 
  */
 router.param("userId", userController.getUserById);
 

@@ -44,7 +44,18 @@ exports.getUserProfile = (req, res) => {
     res.json(req.profile);
 };
 
-exports.getUserFeed = () => {};
+exports.getUserFeed = async (req, res) => {
+    const { following, _id } = req.profile
+
+    // cannot follow self so no need to include self in user feed
+    following.push(_id);
+    // find users not included in the following array
+    const users = await User.find({ _id: { $nin: following } })
+        .select(
+            "_id name avatar"
+        );
+        res.json(users);
+};
 
 exports.uploadAvatar = () => {};
 

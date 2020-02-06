@@ -7,7 +7,18 @@ exports.getUsers = async (req, res) => {
     res.json(users);
 };
 
-exports.getAuthUser = () => {};
+exports.getAuthUser = (req, res) => {
+    if (!req.isAuthUser) {
+        return res.status(403).json({
+            message:"You are unauthenticated. Please sign in or sign up."
+        });
+
+        res.redirect('/signin');
+    }
+    
+    res.json(req.user);
+
+};
 
 exports.getUserById = async (req, res, next, id) => {
     const user = await User.findOne({ _id: id})
@@ -22,7 +33,16 @@ exports.getUserById = async (req, res, next, id) => {
     next();
 };
 
-exports.getUserProfile = () => {};
+// follower profiles are autopopulated on in the User model
+exports.getUserProfile = (req, res) => {
+    // in the get userbyid function we attach profile to the req
+    if (!req.profile) {
+        return res.status(404).json({
+            message: "No user found"
+        });
+    }
+    res.json(req.profile);
+};
 
 exports.getUserFeed = () => {};
 
@@ -45,10 +65,47 @@ exports.deleteUser = async (req, res) => {
     res.json(deletedUser)
 };
 
-exports.addFollowing = () => {};
+exports.addFollowing = async (req, res, next) => {
+    const { followId } = req.body;
 
-exports.addFollower = () => {};
+    await User.findOneAndUpdate(
+        { _id: req.user._id },
+        { $push: { following: followId } }
+    )
+    next();
+};
 
-exports.deleteFollowing = () => {};
+exports.addFollower = async (req, res) => {
+    const { followId } = req.body;
 
-exports.deleteFollower = () => {};
+    const user = await User.findOneAndUpdate(
+        { _id: followId },
+        { $push: { followers: req.user._id } },
+        { new: true }
+    );
+
+    res.json(user);
+};
+
+exports.deleteFollowing = async (req, res, next) => {
+    const { followId } = req.body;
+
+    await User.findOneAndUpdate(
+        { _id: req.user._id },
+        { $pull: { followers: followId }}
+    );
+
+    next();
+};
+
+exports.deleteFollower = async (req, res) => {
+    const { followId } = req.body;
+
+    const user = await User.findOneAndUpdate(
+        { _id: followId },
+        { $pull: { following: req.user._id } },
+        { new: true}
+    );
+
+    res.json(user);
+};

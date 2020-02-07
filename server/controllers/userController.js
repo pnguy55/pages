@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-
+// image uploading and resizing
+const multer = require('multer');
+// write to filesystem
+const jimp = require('jimp');
 
 exports.getUsers = async (req, res) => {
     const users = await User.find().select('_id name email createdAt updatedAt');
@@ -57,11 +60,47 @@ exports.getUserFeed = async (req, res) => {
         res.json(users);
 };
 
-exports.uploadAvatar = () => {};
+const avatarUploadOptions = {
+    storage: multer.memoryStorage(),
+    limits: {
+        // storing image files up to 1mb
+        fileSize: 1024 * 1024 * 1    
+    },
+    fileFilter: (req, file, next) => {
+        if (file.mimetype.startsWith('image/')) {
+            next(null, true);
+        } else {
+            next(null, false);
+        }
+    }
+};
 
-exports.resizeAvatar = () => {};
+exports.uploadAvatar = multer(avatarUploadOptions).single('avatar')
 
-exports.updateUser = () => {};
+exports.resizeAvatar = async (req, res, next) => {
+    // multer automatically sticks the file onto req object
+    if(!req.file) {
+        return next();
+    }
+    // split followed by [1] allows us to grab the second portion of the filename (the filename itself)
+    const extension = req.file.mimetype.split('/')[1]
+    req.body.avatar = `/static/uploads/avatars/${req.user.name}-${Date.now()}.${extension}`;
+    const image = await jimp.read(req.file.buffer);
+    await image.resize(250, jimp.AUTO);
+    await image.write(`./${req.body.avatar}`)
+    next();
+};
+
+exports.updateUser = async (req, res) => {
+    req.body.updateAt = new Date().toISOString();
+    const updatedUser = await User.findOneAndUpdate(
+        { _id: req.user._id },
+        { $set: req.body },
+        { new: true, runValidators: true }
+    )
+
+    res.json(updatedUser);
+};
 
 exports.deleteUser = async (req, res) => {
     const { userId } = req.params;

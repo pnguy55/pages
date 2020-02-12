@@ -105,6 +105,16 @@ router.post(
   catchErrors(postController.resizeImage),
   catchErrors(postController.addPost)
 );
+
+// if you want to add chechAuth middleware, do so, and in the controller function
+// add a check for isAuthUser
+// if (!req.isAuthUser) {
+//   return res.status(403).json({
+//       message:"You are unauthenticated. Please sign in or sign up."
+//   });
+
+//   res.redirect('/signin');
+// }
 router.get("/api/posts/by/:userId", catchErrors(postController.getPostsByUser));
 router.get("/api/posts/feed/:userId", catchErrors(postController.getPostFeed));
 

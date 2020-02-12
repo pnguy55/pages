@@ -26,7 +26,8 @@ const handle = app.getRequestHandler();
 const mongooseOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  useUnifiedTopology: true
 };
 
 mongoose

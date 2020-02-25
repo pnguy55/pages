@@ -52,7 +52,7 @@ exports.deletePost = async (req, res) => {
 
     if(!req.isPoster) {
         return res.status(400).json({
-            message: "You are not authorized to perform this action...."
+            message: "You are not authorized to perform this action....."
         });
     }
 

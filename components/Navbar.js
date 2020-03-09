@@ -5,8 +5,8 @@
 // import ShareOutlined from "@material-ui/icons/ShareOutlined";
 import withStyles from "@material-ui/core/styles/withStyles";
 
-const Navbar = () => {
-  return <div>Navbar</div>;
+const Navbar = ({ classes }) => {
+  return <div className={classes.appBar}>Navbar</div>;
 };
 
 const styles = theme => ({

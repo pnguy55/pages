@@ -84,7 +84,7 @@ class Signup extends React.Component {
             </FormControl>
             <FormControl margin="normal" required fullWidth>
               <InputLabel htmlFor="email">
-                E-mail
+                E-mail Address
               </InputLabel>
               <Input 
                 name="email"
